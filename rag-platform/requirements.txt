@@ -1,0 +1,8 @@
+anthropic>=1.8
+qdrant-client>=1.19
+sentence-transformers>=6.1
+fastapi>=0.141
+uvicorn>=0.54
+httpx>=0.28
+python-dotenv>=1.2
+pydantic>=2.13

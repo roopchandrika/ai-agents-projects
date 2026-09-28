@@ -1,0 +1,9 @@
+# Optional: a Qdrant server so the API and eval scripts can use the index at the same time.
+# After `docker compose up -d`, set QDRANT_URL=http://localhost:6333 in .env and re-run `python -m rag.ingest`.
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage

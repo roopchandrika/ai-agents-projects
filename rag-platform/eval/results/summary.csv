@@ -1,0 +1,2 @@
+run_id,label,n,answer_accuracy,doc_hit_rate,chunk_hit_rate,citation_rate,p50_ms,p95_ms,cost_per_request_usd,total_cost_usd,judge_cost_usd,answer_model,judge_model,embed_model,top_k,chunk_tokens,chunk_overlap
+20260928-122143-baseline,baseline,78,0.7821,0.9615,0.7051,0.9487,2299,4145,0.0089,0.698,0.1816,claude-sonnet-5,claude-sonnet-5,BAAI/bge-small-en-v1.5,5,450,75
