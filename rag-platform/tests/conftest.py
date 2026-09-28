@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from eval import leakage_cases
-from rag import config, pipeline, store, tenant_ingest
+from rag import config, pipeline, service, store, tenant_ingest
 from rag.acl import User
 from rag.auth import issue_token
 
@@ -17,12 +17,23 @@ def isolated_store(tmp_path_factory):
     mp.setattr(config, "QDRANT_PATH", tmp / "qdrant")
     mp.setattr(config, "AUDIT_DB", tmp / "audit.db")
     mp.setattr(config, "JWT_SECRET", "test-secret-" + "x" * 40)
+    mp.setattr(config, "REQUEST_DB", tmp / "requests.db")
+    # Existing API tests assert on what the model sees, so the cache and router stay off unless a test opts in.
+    mp.setattr(service, "CACHE_ENABLED", False)
+    mp.setattr(service, "ROUTING_ENABLED", False)
     store.qdrant.cache_clear()
     tenant_ingest.ingest(include_filler=False)
     yield
     store.qdrant().close()
     store.qdrant.cache_clear()
     mp.undo()
+
+
+@pytest.fixture(autouse=True)
+def no_real_verifier(monkeypatch):
+    """The cache verifier calls a model; tests accept any candidate the similarity search finds."""
+    from rag import cache
+    monkeypatch.setattr(cache, "verify_same_answer", lambda a, b: (True, 0.0))
 
 
 @pytest.fixture(scope="session")

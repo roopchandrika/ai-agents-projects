@@ -1,0 +1,57 @@
+{
+  "questions": 106,
+  "labels": {
+    "simple": 101,
+    "complex": 5
+  },
+  "small_accuracy_by_set": {
+    "single-fact": 0.769,
+    "complex": 0.607
+  },
+  "large_accuracy_by_set": {
+    "single-fact": 0.782,
+    "complex": 0.714
+  },
+  "rules": {
+    "agreement_with_labels": 0.292,
+    "complex_questions_caught": "5/5",
+    "decisive_questions": 6
+  },
+  "llm_classifier": {
+    "agreement_with_labels": 0.368,
+    "complex_questions_caught": "5/5",
+    "decisive_questions": 6
+  },
+  "policies": {
+    "always large (baseline)": {
+      "accuracy": 0.7642,
+      "cost_per_question_usd": 0.009583,
+      "large_model_share": 1.0
+    },
+    "always small": {
+      "accuracy": 0.7264,
+      "cost_per_question_usd": 0.003405,
+      "large_model_share": 0.0
+    },
+    "small + escalation": {
+      "accuracy": 0.7264,
+      "cost_per_question_usd": 0.004699,
+      "large_model_share": 0.151
+    },
+    "rules": {
+      "accuracy": 0.7642,
+      "cost_per_question_usd": 0.008186,
+      "large_model_share": 0.755
+    },
+    "rules + escalation": {
+      "accuracy": 0.7642,
+      "cost_per_question_usd": 0.008576,
+      "large_model_share": 0.802
+    },
+    "LLM classifier + escalation": {
+      "accuracy": 0.7642,
+      "cost_per_question_usd": 0.008659,
+      "large_model_share": 0.745
+    }
+  }
+}

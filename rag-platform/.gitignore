@@ -4,3 +4,4 @@ __pycache__/
 data/qdrant/
 qdrant_storage/
 data/audit.db
+data/requests.db

@@ -1,0 +1,13 @@
+{
+  "pairs": 78,
+  "paraphrase_similarity_median": 0.922,
+  "near_miss_similarity_median": 0.939,
+  "zero_false_hit_threshold": 0.995,
+  "zero_false_hit_paraphrase_recall": 0.0,
+  "candidate_threshold": 0.87,
+  "verify_model": "claude-haiku-4-5",
+  "end_to_end_paraphrase_recall": 0.936,
+  "end_to_end_false_hits": 0,
+  "near_misses_reaching_verifier": 68,
+  "verify_cost_per_check_usd": 0.000391
+}

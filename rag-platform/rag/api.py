@@ -9,7 +9,7 @@ from typing import Literal
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from . import audit, config, pipeline, secure
+from . import audit, config, secure, service
 from .acl import User
 from .auth import current_user, require_admin
 from .store import embedder, qdrant
@@ -49,6 +49,9 @@ class AskResponse(BaseModel):
     output_tokens: int
     cost_usd: float
     latency_ms: float
+    cache_hit: bool = False
+    route: str | None = None
+    escalated: bool = False
 
 
 @app.get("/health")
@@ -58,7 +61,7 @@ def health() -> dict:
 
 @app.post("/ask", response_model=AskResponse)
 def ask(req: AskRequest) -> AskResponse:
-    return to_response(pipeline.answer(req.question, k=req.top_k))
+    return to_response(service.answer(req.question, k=req.top_k))
 
 
 # ---- Multi-tenant service (Project 2) ----
@@ -69,7 +72,8 @@ class TenantAskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
 
 
-def to_response(result: pipeline.Answer) -> AskResponse:
+def to_response(served: service.Served) -> AskResponse:
+    result = served.result
     return AskResponse(
         answer=result.answer,
         sources=[Source(n=i, title=h.title, url=h.url, chunk_id=h.chunk_id, score=h.score, text=h.text)
@@ -79,12 +83,15 @@ def to_response(result: pipeline.Answer) -> AskResponse:
         output_tokens=result.output_tokens,
         cost_usd=result.cost_usd,
         latency_ms=result.total_ms,
+        cache_hit=served.cache_hit,
+        route=served.route,
+        escalated=served.escalated,
     )
 
 
 @app.post("/tenant/ask", response_model=AskResponse)
 def tenant_ask(req: TenantAskRequest, user: User = Depends(current_user)) -> AskResponse:
-    return to_response(secure.secure_answer(req.question, user))
+    return to_response(service.answer(req.question, user))
 
 
 class AclUpdate(BaseModel):

@@ -8,7 +8,7 @@ from qdrant_client import models
 
 from . import config
 from .corpus import chunk_all, corpus_version, load_documents
-from .store import embed_passages, embedder, passage_text, qdrant
+from .store import embed_passages, embedder, passage_text, qdrant, reset_collection
 
 
 def main() -> None:
@@ -20,12 +20,7 @@ def main() -> None:
     vectors = embed_passages([passage_text(c.title, c.text) for c in chunks])
 
     client = qdrant()
-    if client.collection_exists(config.COLLECTION):
-        client.delete_collection(config.COLLECTION)
-    client.create_collection(
-        config.COLLECTION,
-        vectors_config=models.VectorParams(size=len(vectors[0]), distance=models.Distance.COSINE),
-    )
+    reset_collection(config.COLLECTION, models.VectorParams(size=len(vectors[0]), distance=models.Distance.COSINE))
     points = [
         models.PointStruct(
             id=str(uuid.uuid5(uuid.NAMESPACE_URL, c.chunk_id)),

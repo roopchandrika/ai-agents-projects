@@ -39,6 +39,17 @@ JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ISSUER = "rag-platform"
 TOKEN_TTL_MINUTES = int(os.getenv("TOKEN_TTL_MINUTES", "60"))
 
+# Semantic cache and routing (Project 1)
+SMALL_MODEL = os.getenv("SMALL_MODEL", "claude-haiku-4-5")
+LARGE_MODEL = os.getenv("LARGE_MODEL", ANSWER_MODEL)
+CACHE_COLLECTION = os.getenv("CACHE_COLLECTION", "semantic_cache")
+# Embedding similarity only nominates a candidate (it can't tell "Pioneer 10" from "Pioneer 11"); a small model then
+# confirms both questions have the same answer. Both tuned with eval/tune_threshold.py.
+CACHE_THRESHOLD = float(os.getenv("CACHE_THRESHOLD", "0.87"))
+CACHE_VERIFY_MODEL = os.getenv("CACHE_VERIFY_MODEL", SMALL_MODEL)
+CACHE_TTL_HOURS = float(os.getenv("CACHE_TTL_HOURS", "168"))
+REQUEST_DB = Path(os.getenv("REQUEST_DB", ROOT / "data" / "requests.db"))
+
 # USD per 1M tokens (input, output). Used to log cost per request.
 PRICES = {
     "claude-opus-5": (5.00, 25.00),

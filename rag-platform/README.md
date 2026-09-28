@@ -73,6 +73,75 @@ Baseline: Claude Sonnet 5, bge-small embeddings, 450/75-token chunks, top 5. All
 missing from the top 5; in 15 of them the model said it didn't know rather than guessing. Retrieval is the
 bottleneck, not generation.
 
+## Project 1: semantic caching and cost-aware routing
+
+Every request (API or eval) goes through [rag/service.py](rag/service.py) and is logged to `data/requests.db`
+with its cost, latency, cache result, route and model:
+
+```
+cache hit? ──yes──> verified same answer? ──yes──> stored answer   (tenant scope: user must still be able to read every source)
+    │ no                                           
+retrieve top 5 ──> route: reasoning words or weak retrieval? ──> Sonnet 5
+                                   │ no
+                                Haiku 4.5 ──> weak answer? ──> Sonnet 5 with top 10
+```
+
+**Semantic cache ([rag/cache.py](rag/cache.py)).** Normalized question → embedding → nearest entry in the same
+scope, built from the same corpus version, and not past its TTL. Errors, refusals, uncited answers and "I don't
+know" answers are never cached. Tenant entries are only served if the asking user can read every source chunk
+*right now*, so a permission revoke also invalidates cached answers, and cache hits are written to the audit log.
+
+**Tuning the threshold** (`python -m eval.build_cache_pairs`, then `python -m eval.tune_threshold --verify`).
+There are 78 paraphrase pairs that should hit the cache and 78 near-misses that must not (another entity, attribute or
+qualifier: "Pioneer 10" vs "Pioneer 11", "June 30" vs "September 30").
+
+| Finding | Result |
+|---|---|
+| Median embedding similarity, paraphrases vs near-misses | 0.922 vs **0.939**: near-misses score *higher* |
+| Lowest threshold with zero wrong answers, embeddings alone | 0.995, which serves 0% of paraphrases |
+| Duplicate-question cross-encoders (Quora-trained) | still 9–17 false hits at usable recall |
+| **Embedding ≥ 0.87 nominates, Haiku 4.5 verifies "same answer?"** | **93.6% of paraphrases served, 0 of 68 near-misses** |
+| Verifier cost | $0.0004 per candidate (about 4% of a Sonnet answer); identical questions skip it |
+
+One generated near-miss turned out to have the same answer as its original, so it was corrected by hand
+(noted in `eval/cache_pairs.jsonl`).
+
+**Routing ([rag/router.py](rag/router.py), tuned with `python -m eval.route_study`).** The study ran Haiku and
+Sonnet on the 78 single-fact questions plus 28 two-article comparison and "why/how" questions
+([eval/build_complex.py](eval/build_complex.py)). It labelled a question "complex" only when Sonnet got it right
+and Haiku didn't, then simulated each policy from the recorded answers:
+
+| Policy (106 questions) | Accuracy | Cost / question | Touches Sonnet |
+|---|---|---|---|
+| Always Sonnet (baseline) | 76.4% | $0.0096 | 100% |
+| Always Haiku | 72.6% | $0.0034 | 0% |
+| First rules (reasoning words, >22 words, multi-part, weak retrieval) | 76.4% | $0.0082 | 76% |
+| Escalation to Sonnet with the same 5 chunks | fixed 1 of 16 | | |
+| **Reasoning-words rule + escalation to Sonnet with top 10** | **84.0%** | **$0.0075** | 45% |
+
+- **Haiku matches Sonnet on single-fact lookups.** Only 5 of 106 questions needed Sonnet, and all 5 contain
+  reasoning words ("why", "compare", "how does"), so the length and multi-part rules were dropped.
+- **"I don't know" usually means the answer chunk wasn't retrieved.** A bigger model alone can't fix that, so
+  escalation also widens retrieval, which fixes 11 of 16.
+- **Caveat:** the routing rule was chosen on the same 5 questions it's scored on, so treat the routing gain as
+  optimistic. The escalation change wasn't tuned.
+
+**Dashboard.** `streamlit run dashboard/app.py` shows cost per request, cache hit rate, how requests were served,
+cumulative cost, accuracy per path and latency for any runs in the request log.
+
+**End-to-end comparison (pending).** The same 184 requests (106 questions plus 78 paraphrased repeats) through both
+paths:
+
+```bash
+python -m eval.run_eval --mode baseline --label p1-baseline --questions eval/questions.jsonl eval/questions_complex.jsonl --paraphrases
+python -m eval.run_eval --mode smart --label p1-cache-routing --questions eval/questions.jsonl eval/questions_complex.jsonl --paraphrases
+```
+
+| Run | Requests | Accuracy | Cache hits | Cost / request | p50 | p95 |
+|---|---|---|---|---|---|---|
+| p1-baseline | – | – | – | – | – | – |
+| p1-cache-routing | – | – | – | – | – | – |
+
 ## Project 2: permission-aware multi-tenant RAG
 
 Three fictional companies (Northwind Robotics, Helix Biotherapeutics, Summit Freight) share one index. Each has
@@ -152,8 +221,8 @@ python -m scripts.issue_token nw-alice               # prints a JWT (needs JWT_S
 - ACL changes made through the API live in the vector store and the audit log. Re-running `tenant_ingest`
   resets them to the manifest, which is the source of truth at ingest time.
 - There is no login flow: tokens are minted by a script for the seed users.
-- Chat history, summaries and caches would also need ACLs. There are none yet; Project 1's cache must key on
-  tenant and user.
+- Chat history and summaries would also need ACLs; there are none yet. The Project 1 cache is scoped per
+  tenant and re-checks every source against the asking user's current permissions.
 
 ## Storage modes
 
@@ -165,9 +234,11 @@ set `QDRANT_URL=http://localhost:6333` in `.env` and re-run `python -m rag.inges
 
 ```
 rag/        config, chunking, embedding store, ingest, pipeline, FastAPI app,
-            acl, auth, audit, secure retrieval, tenant ingest (Project 2)
+            acl, auth, audit, secure retrieval, tenant ingest (Project 2),
+            service, cache, router, request log (Project 1)
 scripts/    fetch_corpus.py, issue_token.py, measure_acl.py
 eval/       build_eval.py, review_eval.py, run_eval.py, leakage_cases.py, questions*.jsonl, results/
-tests/      leakage suite, auth, audit, revoke, ingest validation (pytest)
-data/       corpus/ and tenants/ (committed), qdrant/ and audit.db (generated)
+tests/      leakage suite, auth, audit, revoke, ingest validation, cache and routing (pytest)
+dashboard/  Streamlit cost & quality dashboard over data/requests.db
+data/       corpus/ and tenants/ (committed), qdrant/, audit.db, requests.db (generated)
 ```

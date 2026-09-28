@@ -2,7 +2,7 @@
 import threading
 from functools import lru_cache
 
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, models
 from sentence_transformers import SentenceTransformer
 
 from . import config
@@ -36,3 +36,15 @@ def embed_passages(texts: list[str]) -> list[list[float]]:
 
 def embed_query(query: str) -> list[float]:
     return embedder().encode(config.QUERY_PREFIX + query, normalize_embeddings=True).tolist()
+
+
+def reset_collection(name: str, vectors_config: models.VectorParams | None = None) -> None:
+    """Empty a collection and (optionally) recreate it. Points are deleted before the collection is dropped
+    because embedded Qdrant brings a dropped collection's points back if it is recreated under the same name
+    in the same process."""
+    client = qdrant()
+    if client.collection_exists(name):
+        client.delete(name, points_selector=models.FilterSelector(filter=models.Filter()), wait=True)
+        client.delete_collection(name)
+    if vectors_config is not None:
+        client.create_collection(name, vectors_config=vectors_config)

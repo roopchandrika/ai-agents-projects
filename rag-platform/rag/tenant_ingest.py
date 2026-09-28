@@ -16,7 +16,7 @@ from qdrant_client import models
 from . import config
 from .acl import validate_acl
 from .corpus import chunk_document
-from .store import embed_passages, embedder, passage_text, qdrant
+from .store import embed_passages, embedder, passage_text, qdrant, reset_collection
 
 INDEXED_FIELDS = ("tenant_id", "allowed_roles", "allowed_users", "doc_id")
 
@@ -80,10 +80,8 @@ def ingest(include_filler: bool = True) -> int:
         points += filler_points(sorted(manifest["tenants"]))
 
     client = qdrant()
-    if client.collection_exists(config.TENANT_COLLECTION):
-        client.delete_collection(config.TENANT_COLLECTION)
-    client.create_collection(config.TENANT_COLLECTION, vectors_config=models.VectorParams(
-        size=len(points[0].vector), distance=models.Distance.COSINE))
+    reset_collection(config.TENANT_COLLECTION, models.VectorParams(size=len(points[0].vector),
+                                                                   distance=models.Distance.COSINE))
     for field in INDEXED_FIELDS:
         client.create_payload_index(config.TENANT_COLLECTION, field, models.PayloadSchemaType.KEYWORD)
     for i in range(0, len(points), 256):

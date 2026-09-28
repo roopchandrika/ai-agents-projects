@@ -1,0 +1,66 @@
+{
+ "q004": {
+  "correct": true,
+  "cost": 0.016754
+ },
+ "q011": {
+  "correct": true,
+  "cost": 0.015948
+ },
+ "q022": {
+  "correct": true,
+  "cost": 0.015928
+ },
+ "q026": {
+  "correct": false,
+  "cost": 0.015644
+ },
+ "q031": {
+  "correct": false,
+  "cost": 0.015936
+ },
+ "q040": {
+  "correct": true,
+  "cost": 0.014678
+ },
+ "q042": {
+  "correct": true,
+  "cost": 0.01671
+ },
+ "q050": {
+  "correct": false,
+  "cost": 0.014664
+ },
+ "q056": {
+  "correct": true,
+  "cost": 0.01593
+ },
+ "q068": {
+  "correct": true,
+  "cost": 0.01517
+ },
+ "q070": {
+  "correct": true,
+  "cost": 0.015568
+ },
+ "q071": {
+  "correct": false,
+  "cost": 0.015472
+ },
+ "q079": {
+  "correct": true,
+  "cost": 0.015188
+ },
+ "c016": {
+  "correct": false,
+  "cost": 0.021668
+ },
+ "c022": {
+  "correct": true,
+  "cost": 0.019186
+ },
+ "c027": {
+  "correct": true,
+  "cost": 0.01757
+ }
+}
