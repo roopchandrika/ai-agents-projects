@@ -1,5 +1,7 @@
-# Optional: a Qdrant server so the API and eval scripts can use the index at the same time.
-# After `docker compose up -d`, set QDRANT_URL=http://localhost:6333 in .env and re-run `python -m rag.ingest`.
+# qdrant (optional): a Qdrant server so the API and eval scripts can use the index at the same time.
+#   After `docker compose up -d qdrant`, set QDRANT_URL=http://localhost:6333 in .env and re-run the ingest scripts.
+# neo4j (Project 3): the knowledge graph. Needs NEO4J_PASSWORD in .env (docker compose reads it from there).
+#   `docker compose up -d neo4j`, then browse http://localhost:7474 to explore the graph.
 services:
   qdrant:
     image: qdrant/qdrant:latest
@@ -7,3 +9,13 @@ services:
       - "6333:6333"
     volumes:
       - ./qdrant_storage:/qdrant/storage
+
+  neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
+    volumes:
+      - ./neo4j_data:/data

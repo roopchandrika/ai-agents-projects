@@ -50,6 +50,17 @@ CACHE_VERIFY_MODEL = os.getenv("CACHE_VERIFY_MODEL", SMALL_MODEL)
 CACHE_TTL_HOURS = float(os.getenv("CACHE_TTL_HOURS", "168"))
 REQUEST_DB = Path(os.getenv("REQUEST_DB", ROOT / "data" / "requests.db"))
 
+# GraphRAG over HotpotQA (Project 3)
+HOTPOT_DIR = ROOT / "data" / "hotpotqa"
+HOTPOT_COLLECTION = os.getenv("HOTPOT_COLLECTION", "hotpot_chunks")
+EXTRACT_MODEL = os.getenv("EXTRACT_MODEL", SMALL_MODEL)
+# bge-reranker-base: +4.7 pts both-gold recall over vector top-5 on HotpotQA; the MS MARCO MiniLM
+# cross-encoders were 7-8 pts *worse*. Slow on CPU (~8 s for 20 pairs).
+RERANK_MODEL = os.getenv("RERANK_MODEL", "BAAI/bge-reranker-base")
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+
 # USD per 1M tokens (input, output). Used to log cost per request.
 PRICES = {
     "claude-opus-5": (5.00, 25.00),

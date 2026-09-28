@@ -5,3 +5,5 @@ data/qdrant/
 qdrant_storage/
 data/audit.db
 data/requests.db
+data/hotpotqa/raw/
+neo4j_data/

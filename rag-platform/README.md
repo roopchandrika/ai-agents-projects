@@ -142,6 +142,67 @@ python -m eval.run_eval --mode smart --label p1-cache-routing --questions eval/q
 | p1-baseline | – | – | – | – | – | – |
 | p1-cache-routing | – | – | – | – | – | – |
 
+## Project 3: GraphRAG for multi-hop questions
+
+150 questions sampled from the HotpotQA dev set (distractor setting): 123 "bridge" questions ("Where was the director
+of film X born?") and 27 comparisons. All their context paragraphs are pooled into **one corpus of 1,491
+paragraphs**, so retrieval has to find the 2 supporting paragraphs among ~1,500, not among each question's own 10.
+
+**Pipeline** ([graphrag/](graphrag/))
+
+1. `python -m scripts.fetch_hotpotqa`: download (from the hotpotqa organisation's Hugging Face copy) and sample.
+2. `python -m graphrag.vectors`: embed the paragraphs into Qdrant.
+3. `python -m graphrag.extract`: Haiku 4.5 extracts entities and relations per paragraph into a fixed Pydantic
+   schema (6 entity types, 19 relation types; unknown types fail validation). Results are appended to
+   `data/hotpotqa/extractions.jsonl` as they arrive, so the run can resume and is paid for once. Estimated cost:
+   about $3–4.
+4. `docker compose up -d neo4j`, then `python -m graphrag.graph`: entity resolution, then load
+   `(:Entity)-[:REL {type, chunk}]->(:Entity)` and `(:Chunk)-[:MENTIONS]->(:Entity)` into Neo4j.
+5. `python -m eval.hotpot_eval --mode {vector, vector_rerank, graph, graph_decompose}`: scores exact match, F1,
+   and supporting-paragraph recall, split into bridge and comparison. `--retrieval-only` skips the model and
+   costs nothing.
+
+**Entity resolution** ([graphrag/resolve.py](graphrag/resolve.py)) merges names with union-find in three steps:
+- **Normalized names:** case, accents, punctuation, a leading "the" and a "(film)"-style suffix are ignored.
+  Disambiguated Wikipedia titles such as "Mercury (planet)" and "Mercury (element)" are never merged.
+- **Person initials:** "J. R. Smith" joins "John Robert Smith" when only one full name fits.
+- **Embedding similarity (≥ 0.93):** only between names that share a word and have **identical numbers**. That
+  guard is the lesson from Project 1: "Apollo 11" and "Apollo 13" look alike to an embedding model.
+
+Paragraph titles are Wikipedia article names, so a group containing one takes it as the canonical name.
+
+**Retrieval** ([graphrag/retrieve.py](graphrag/retrieve.py)). Every mode gives the model 5 paragraphs, so modes
+differ only in *which* paragraphs they pick:
+- **Graph mode** links entities named in the question (whole-word match against names and aliases) and takes the
+  entities in the top 2 vector hits (the bridge entity is usually in the first-hop paragraph).
+- It expands them up to 2 hops in Cypher. Hub entities with more than 60 links aren't traversed, so "United States"
+  doesn't connect everything to everything.
+- Paragraphs mentioning the entities it reaches become candidates, and the relation triples between the chosen
+  paragraphs go into the prompt.
+- **Choosing the final 5:** `GRAPH_STRATEGY=rerank` (the default) reranks vector and graph candidates together.
+  `slots` keeps the top 3 vector hits and fills 2 slots from the graph.
+- **`graph_decompose`** splits the question into up to 3 sub-questions and answers them in order, substituting
+  earlier answers. It sees up to 8 paragraphs, so compare it with that in mind.
+
+**Measured so far: retrieval only, 150 questions, no API cost**
+
+| Mode | Supporting-paragraph recall | Both gold paragraphs found | Bridge | Comparison | p50 |
+|---|---|---|---|---|---|
+| vector (top 5) | 90.0% | 80.0% | 76.4% | 96.3% | 0.03 s |
+| + ms-marco-MiniLM-L-6 reranker | 85.7% | 72.7% | 68.3% | 92.6% | 1.1 s |
+| + ms-marco-MiniLM-L-12 reranker | 85.3% | 72.0% | 66.7% | 96.3% | 2.2 s |
+| **+ bge-reranker-base** | **92.3%** | **84.7%** | **81.3%** | **100%** | 7.9 s |
+| graph | pending extraction | | | | |
+
+- **Reranker choice decides whether reranking helps at all.** The MS MARCO cross-encoders are 7–8 points *worse*
+  than no reranker. bge-reranker-base is 4.7 points better, so it's the default, and `vector_rerank` with it is
+  the bar the graph has to beat.
+- **Bridge questions are the gap:** 81% vs 96% for comparisons.
+
+**Still to run (needs API credit and Neo4j):** extraction; the single-hop set
+(`python -m eval.build_hotpot_single`, then review), to check easy questions don't get worse; and the answer-level
+runs (EM/F1) for every mode. Expect roughly $6–8 in total.
+
 ## Project 2: permission-aware multi-tenant RAG
 
 Three fictional companies (Northwind Robotics, Helix Biotherapeutics, Summit Freight) share one index. Each has
@@ -236,9 +297,11 @@ set `QDRANT_URL=http://localhost:6333` in `.env` and re-run `python -m rag.inges
 rag/        config, chunking, embedding store, ingest, pipeline, FastAPI app,
             acl, auth, audit, secure retrieval, tenant ingest (Project 2),
             service, cache, router, request log (Project 1)
-scripts/    fetch_corpus.py, issue_token.py, measure_acl.py
+graphrag/   HotpotQA corpus, vectors, extraction, entity resolution, Neo4j graph, retrieval, answering (Project 3)
+scripts/    fetch_corpus.py, issue_token.py, measure_acl.py, fetch_hotpotqa.py
 eval/       build_eval.py, review_eval.py, run_eval.py, leakage_cases.py, questions*.jsonl, results/
-tests/      leakage suite, auth, audit, revoke, ingest validation, cache and routing (pytest)
+tests/      leakage suite, auth, audit, revoke, ingest validation, cache and routing, graphrag (pytest)
 dashboard/  Streamlit cost & quality dashboard over data/requests.db
-data/       corpus/ and tenants/ (committed), qdrant/, audit.db, requests.db (generated)
+data/       corpus/, tenants/, hotpotqa/sample.json (committed); qdrant/, audit.db, requests.db,
+            hotpotqa/raw/ (generated)
 ```
