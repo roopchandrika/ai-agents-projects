@@ -1,0 +1,422 @@
+{
+  "tenants": {
+    "northwind": "Northwind Robotics",
+    "helix": "Helix Biotherapeutics",
+    "summit": "Summit Freight"
+  },
+  "users": [
+    {
+      "id": "nw-alice",
+      "tenant_id": "northwind",
+      "name": "Alice Chen",
+      "roles": [
+        "employee",
+        "engineering"
+      ]
+    },
+    {
+      "id": "nw-bob",
+      "tenant_id": "northwind",
+      "name": "Bob Okafor",
+      "roles": [
+        "employee",
+        "hr"
+      ]
+    },
+    {
+      "id": "nw-carol",
+      "tenant_id": "northwind",
+      "name": "Carol Diaz",
+      "roles": [
+        "employee",
+        "exec"
+      ]
+    },
+    {
+      "id": "nw-dave",
+      "tenant_id": "northwind",
+      "name": "Dave Lindqvist",
+      "roles": [
+        "employee",
+        "admin"
+      ]
+    },
+    {
+      "id": "hx-erin",
+      "tenant_id": "helix",
+      "name": "Erin Walsh",
+      "roles": [
+        "employee",
+        "engineering"
+      ]
+    },
+    {
+      "id": "hx-frank",
+      "tenant_id": "helix",
+      "name": "Frank Mbeki",
+      "roles": [
+        "employee",
+        "hr"
+      ]
+    },
+    {
+      "id": "hx-grace",
+      "tenant_id": "helix",
+      "name": "Grace Park",
+      "roles": [
+        "employee",
+        "exec"
+      ]
+    },
+    {
+      "id": "hx-henry",
+      "tenant_id": "helix",
+      "name": "Henry Osei",
+      "roles": [
+        "employee",
+        "admin"
+      ]
+    },
+    {
+      "id": "sm-ivan",
+      "tenant_id": "summit",
+      "name": "Ivan Petrov",
+      "roles": [
+        "employee"
+      ]
+    },
+    {
+      "id": "sm-judy",
+      "tenant_id": "summit",
+      "name": "Judy Alvarez",
+      "roles": [
+        "employee",
+        "finance"
+      ]
+    },
+    {
+      "id": "sm-ken",
+      "tenant_id": "summit",
+      "name": "Ken Watanabe",
+      "roles": [
+        "employee",
+        "exec"
+      ]
+    },
+    {
+      "id": "sm-lena",
+      "tenant_id": "summit",
+      "name": "Lena Novak",
+      "roles": [
+        "employee",
+        "hr",
+        "admin"
+      ]
+    }
+  ],
+  "documents": [
+    {
+      "doc_id": "northwind/employee-handbook",
+      "tenant_id": "northwind",
+      "title": "Northwind Employee Handbook",
+      "path": "northwind/employee-handbook.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "Flexday Fridays"
+    },
+    {
+      "doc_id": "northwind/security-policy",
+      "tenant_id": "northwind",
+      "title": "Northwind IT Security Policy",
+      "path": "northwind/security-policy.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "YubiKey 5C"
+    },
+    {
+      "doc_id": "northwind/product-overview",
+      "tenant_id": "northwind",
+      "title": "Northwind Product Overview",
+      "path": "northwind/product-overview.md",
+      "classification": "public",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "PalletPilot"
+    },
+    {
+      "doc_id": "northwind/engineering-roadmap-2027",
+      "tenant_id": "northwind",
+      "title": "Northwind Engineering Roadmap 2027",
+      "path": "northwind/engineering-roadmap-2027.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "engineering",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "Project Kestrel"
+    },
+    {
+      "doc_id": "northwind/salary-bands-2026",
+      "tenant_id": "northwind",
+      "title": "Northwind Salary Bands 2026",
+      "path": "northwind/salary-bands-2026.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "hr",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "$212,000"
+    },
+    {
+      "doc_id": "northwind/board-minutes-2026-q3",
+      "tenant_id": "northwind",
+      "title": "Northwind Board Minutes Q3 2026",
+      "path": "northwind/board-minutes-2026-q3.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "Atlas Dynamics"
+    },
+    {
+      "doc_id": "northwind/postmortem-pp-collision",
+      "tenant_id": "northwind",
+      "title": "Postmortem: PalletPilot Dock Collision",
+      "path": "northwind/postmortem-pp-collision.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "engineering"
+      ],
+      "allowed_users": [],
+      "canary": "firmware 4.2.1"
+    },
+    {
+      "doc_id": "northwind/perf-review-alice-chen",
+      "tenant_id": "northwind",
+      "title": "Performance Review: Alice Chen",
+      "path": "northwind/perf-review-alice-chen.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "hr"
+      ],
+      "allowed_users": [
+        "nw-alice"
+      ],
+      "canary": "congestion stalls by 30%"
+    },
+    {
+      "doc_id": "helix/employee-handbook",
+      "tenant_id": "helix",
+      "title": "Helix Employee Handbook",
+      "path": "helix/employee-handbook.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "Science Saturday"
+    },
+    {
+      "doc_id": "helix/security-policy",
+      "tenant_id": "helix",
+      "title": "Helix Information Security Policy",
+      "path": "helix/security-policy.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "Benchling"
+    },
+    {
+      "doc_id": "helix/product-overview",
+      "tenant_id": "helix",
+      "title": "Helix Pipeline Overview",
+      "path": "helix/product-overview.md",
+      "classification": "public",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "HX-201"
+    },
+    {
+      "doc_id": "helix/engineering-roadmap-2027",
+      "tenant_id": "helix",
+      "title": "Helix Data Platform Roadmap 2027",
+      "path": "helix/engineering-roadmap-2027.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "engineering",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "Project Meridian"
+    },
+    {
+      "doc_id": "helix/salary-bands-2026",
+      "tenant_id": "helix",
+      "title": "Helix Salary Bands 2026",
+      "path": "helix/salary-bands-2026.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "hr",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "$187,400"
+    },
+    {
+      "doc_id": "helix/board-minutes-2026-q3",
+      "tenant_id": "helix",
+      "title": "Helix Board Minutes Q3 2026",
+      "path": "helix/board-minutes-2026-q3.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "Corvane Pharma"
+    },
+    {
+      "doc_id": "helix/postmortem-lims-outage",
+      "tenant_id": "helix",
+      "title": "Postmortem: LIMS Outage",
+      "path": "helix/postmortem-lims-outage.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "engineering"
+      ],
+      "allowed_users": [],
+      "canary": "certificate expiry"
+    },
+    {
+      "doc_id": "helix/perf-review-erin-walsh",
+      "tenant_id": "helix",
+      "title": "Performance Review: Erin Walsh",
+      "path": "helix/perf-review-erin-walsh.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "hr"
+      ],
+      "allowed_users": [
+        "hx-erin"
+      ],
+      "canary": "6 hours to 90 minutes"
+    },
+    {
+      "doc_id": "summit/employee-handbook",
+      "tenant_id": "summit",
+      "title": "Summit Freight Employee Handbook",
+      "path": "summit/employee-handbook.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "Road Ready bonus"
+    },
+    {
+      "doc_id": "summit/security-policy",
+      "tenant_id": "summit",
+      "title": "Summit Freight Security Policy",
+      "path": "summit/security-policy.md",
+      "classification": "internal",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "Samsara"
+    },
+    {
+      "doc_id": "summit/product-overview",
+      "tenant_id": "summit",
+      "title": "Summit Freight Services",
+      "path": "summit/product-overview.md",
+      "classification": "public",
+      "allowed_roles": [
+        "employee"
+      ],
+      "allowed_users": [],
+      "canary": "SummitTrack"
+    },
+    {
+      "doc_id": "summit/q4-forecast-2026",
+      "tenant_id": "summit",
+      "title": "Summit Freight Q4 2026 Forecast",
+      "path": "summit/q4-forecast-2026.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "finance",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "operating ratio of 91.8"
+    },
+    {
+      "doc_id": "summit/salary-bands-2026",
+      "tenant_id": "summit",
+      "title": "Summit Freight Pay Scales 2026",
+      "path": "summit/salary-bands-2026.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "hr",
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "$0.68 per mile"
+    },
+    {
+      "doc_id": "summit/board-minutes-2026-q3",
+      "tenant_id": "summit",
+      "title": "Summit Freight Board Minutes Q3 2026",
+      "path": "summit/board-minutes-2026-q3.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "exec"
+      ],
+      "allowed_users": [],
+      "canary": "Ridgeline Carriers"
+    },
+    {
+      "doc_id": "summit/claims-report-2026",
+      "tenant_id": "summit",
+      "title": "Summit Freight Cargo Claims Report",
+      "path": "summit/claims-report-2026.md",
+      "classification": "confidential",
+      "allowed_roles": [
+        "finance",
+        "exec"
+      ],
+      "allowed_users": [
+        "sm-lena"
+      ],
+      "canary": "claims ratio of 1.4%"
+    },
+    {
+      "doc_id": "summit/perf-review-ivan-petrov",
+      "tenant_id": "summit",
+      "title": "Performance Review: Ivan Petrov",
+      "path": "summit/perf-review-ivan-petrov.md",
+      "classification": "restricted",
+      "allowed_roles": [
+        "hr"
+      ],
+      "allowed_users": [
+        "sm-ivan"
+      ],
+      "canary": "on-time delivery rate of 97%"
+    }
+  ]
+}

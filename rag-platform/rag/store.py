@@ -1,10 +1,14 @@
 """Embedding model and Qdrant client, shared by ingestion, the API and the eval scripts."""
+import threading
 from functools import lru_cache
 
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
 from . import config
+
+# The embedded Qdrant store isn't built for concurrent access; hold this around every search (a few ms).
+store_lock = threading.Lock()
 
 
 @lru_cache(maxsize=1)

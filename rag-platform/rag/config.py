@@ -31,6 +31,14 @@ TOP_K = int(os.getenv("TOP_K", "5"))
 QDRANT_URL = os.getenv("QDRANT_URL", "")        # e.g. http://localhost:6333 when using docker compose
 COLLECTION = os.getenv("COLLECTION", "docs")
 
+# Multi-tenant service (Project 2)
+TENANT_DIR = ROOT / "data" / "tenants"
+TENANT_COLLECTION = os.getenv("TENANT_COLLECTION", "tenant_chunks")
+AUDIT_DB = Path(os.getenv("AUDIT_DB", ROOT / "data" / "audit.db"))
+JWT_SECRET = os.getenv("JWT_SECRET", "")
+JWT_ISSUER = "rag-platform"
+TOKEN_TTL_MINUTES = int(os.getenv("TOKEN_TTL_MINUTES", "60"))
+
 # USD per 1M tokens (input, output). Used to log cost per request.
 PRICES = {
     "claude-opus-5": (5.00, 25.00),

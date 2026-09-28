@@ -3,7 +3,6 @@
 Every call returns timing, token and cost numbers so later projects have a baseline to beat.
 """
 import re
-import threading
 import time
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
@@ -11,17 +10,13 @@ from functools import lru_cache
 import anthropic
 
 from . import config
-from .store import embed_query, qdrant
+from .store import embed_query, qdrant, store_lock
 
 SYSTEM_PROMPT = """You answer questions using only the numbered sources provided in the user's message.
 
 Cite every factual claim with the number of the source it comes from, in square brackets, like [2] or [1][3].
 If the sources don't contain the answer, say that you don't know based on the available documents instead of \
 using outside knowledge. Keep answers concise: a few sentences unless the question needs more."""
-
-# The embedded Qdrant store isn't built for concurrent access; serialize retrieval (it takes a few ms).
-_retrieval_lock = threading.Lock()
-
 
 @lru_cache(maxsize=1)
 def claude() -> anthropic.Anthropic:
@@ -96,7 +91,7 @@ def cited_doc_ids(answer: str, hits: list[Hit]) -> list[str]:
 
 
 def answer(question: str, model: str = config.ANSWER_MODEL, k: int = config.TOP_K) -> Answer:
-    with _retrieval_lock:
+    with store_lock:
         t0 = time.perf_counter()
         hits = retrieve(question, k)
         t1 = time.perf_counter()

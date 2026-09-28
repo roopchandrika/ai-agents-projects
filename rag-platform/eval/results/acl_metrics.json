@@ -1,0 +1,20 @@
+{
+  "collection_chunks": 2070,
+  "qdrant_mode": "embedded (local, no payload indexes)",
+  "filter": {
+    "searches_per_mode": 510,
+    "unfiltered_p50_ms": 4.828,
+    "unfiltered_p95_ms": 6.301,
+    "filtered_p50_ms": 26.685,
+    "filtered_p95_ms": 29.872,
+    "overhead_p50_ms": 21.857,
+    "overhead_p95_ms": 23.571
+  },
+  "revoke": {
+    "document": "northwind/perf-review-alice-chen",
+    "trials": 20,
+    "stale_reads_after_revoke": 0,
+    "revoke_to_enforced_p50_ms": 65.32,
+    "revoke_to_enforced_max_ms": 154.204
+  }
+}

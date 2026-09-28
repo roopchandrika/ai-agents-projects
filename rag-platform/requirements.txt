@@ -6,3 +6,5 @@ uvicorn>=0.54
 httpx>=0.28
 python-dotenv>=1.2
 pydantic>=2.13
+pyjwt>=2.10
+pytest>=9.0
